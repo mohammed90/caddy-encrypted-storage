@@ -1,0 +1,59 @@
+name: Lint
+
+on:
+  push:
+    branches:
+      - 2.*
+  pull_request:
+    branches:
+      - master
+
+permissions:
+  contents: read
+
+jobs:
+  # From https://github.com/golangci/golangci-lint-action
+  golangci:
+    permissions:
+      contents: read # for actions/checkout to fetch code
+      pull-requests: read # for golangci/golangci-lint-action to fetch pull requests
+    name: lint
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+          - macos-latest
+          - windows-latest
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v4
+        with:
+          go-version: '~1.21.0'
+          check-latest: true
+
+          # Workaround for https://github.com/golangci/golangci-lint-action/issues/135
+          skip-pkg-cache: true
+
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          version: v1.54
+
+          # Workaround for https://github.com/golangci/golangci-lint-action/issues/135
+          skip-pkg-cache: true
+
+          # Windows times out frequently after about 5m50s if we don't set a longer timeout.
+          args: --timeout 10m
+
+          # Optional: show only new issues if it's a pull request. The default value is `false`.
+          # only-new-issues: true
+
+  govulncheck:
+    runs-on: ubuntu-latest
+    steps:
+      - name: govulncheck
+        uses: golang/govulncheck-action@v1
+        with:
+          go-version-input: '~1.21.0'
+          check-latest: true

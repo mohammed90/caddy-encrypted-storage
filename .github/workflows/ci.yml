@@ -1,0 +1,72 @@
+# Used as inspiration: https://github.com/mvdan/github-actions-golang
+
+name: Tests
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  test:
+    strategy:
+      # Default is true, cancels jobs for other platforms in the matrix if one fails
+      fail-fast: false
+      matrix:
+        os: 
+          - ubuntu-latest
+          - macos-latest
+          - windows-latest
+        go: 
+          - '1.20'
+          - '1.21'
+
+        include:
+        # Set the minimum Go patch version for the given Go minor
+        # Usable via ${{ matrix.GO_SEMVER }}
+        - go: '1.20'
+          GO_SEMVER: '~1.20.6'
+
+        - go: '1.21'
+          GO_SEMVER: '~1.21.0'
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: ${{ matrix.GO_SEMVER }}
+        check-latest: true
+
+    - name: Print Go version and environment
+      id: vars
+      shell: bash
+      run: |
+        printf "Using go at: $(which go)\n"
+        printf "Go version: $(go version)\n"
+        printf "\n\nGo environment:\n\n"
+        go env
+        printf "\n\nSystem environment:\n\n"
+        env
+        printf "Git version: $(git version)\n\n"
+        # Calculate the short SHA1 hash of the git commit
+        echo "short_sha=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+    - name: Get dependencies
+      run: |
+        go get -v -t -d ./...
+        # mkdir test-results
+
+    # Commented bits below were useful to allow the job to continue
+    # even if the tests fail, so we can publish the report separately
+    # For info about set-output, see https://stackoverflow.com/questions/57850553/github-actions-check-steps-status
+    - name: Run tests
+      run: |
+        go test -v -coverprofile="cover-profile.out" -short -race ./...
