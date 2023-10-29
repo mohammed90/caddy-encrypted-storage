@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/caddyserver/caddy/v2"
+	"github.com/caddyserver/caddy/v2/caddytest"
 	_ "github.com/caddyserver/caddy/v2/modules/standard"
 	"github.com/caddyserver/certmagic"
 	"github.com/getsops/sops/v3/age"
@@ -91,5 +92,64 @@ func TestStorageWithAgeEncryption(t *testing.T) {
 	if s.Exists(ctx, key) {
 		t.Errorf("key '%s' should not exist", key)
 		return
+	}
+}
+
+func TestCaddyfileAdaptToJSON(t *testing.T) {
+	testcases := []struct {
+		name   string
+		input  string
+		output string
+		fails  bool
+	}{
+		{
+			name: "happy scenario",
+			input: fmt.Sprintf(`{
+	storage encrypted {
+		backend file_system {
+			root /var/caddy/storage
+		}
+		provider local {
+			key age {
+				recipient %s
+				identity %s
+			}
+		}
+	}
+}
+`, recipient, ageId),
+			output: `{
+	"storage": {
+		"backend": {
+			"module": "file_system",
+			"root": "/var/caddy/storage"
+		},
+		"encryption": [
+			{
+				"keys": [
+					{
+						"identities": [
+							"AGE-SECRET-KEY-16E6P6H93CXNPZQRJVNA5NMK4X06ZHCDU4ED9U89E3PZMASSMC46SX99PEW"
+						],
+						"recipient": "age1pjtsgtdh79nksq08ujpx8hrup0yrpn4sw3gxl4yyh0vuggjjp3ls7f42y2",
+						"type": "age"
+					}
+				],
+				"provider": "local"
+			}
+		],
+		"module": "encrypted"
+	}
+}`,
+		},
+	}
+	for i, tc := range testcases {
+		t.Run(tc.name, func(t *testing.T) {
+			ok := caddytest.CompareAdapt(t, tc.name, tc.input, "caddyfile", tc.output)
+			if !ok {
+				t.Errorf("failed to adapt test case number '%d', named '%s'", i, tc.name)
+			}
+		})
+
 	}
 }

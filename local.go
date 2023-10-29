@@ -47,7 +47,7 @@ func (l *Local) KeyServiceClient() keyservice.KeyServiceClient {
 // CaddyModule implements caddy.Module.
 func (Local) CaddyModule() caddy.ModuleInfo {
 	return caddy.ModuleInfo{
-		ID: "caddy.storage.encrypted.local",
+		ID: "caddy.storage.encrypted.provider.local",
 		New: func() caddy.Module {
 			return new(Local)
 		},

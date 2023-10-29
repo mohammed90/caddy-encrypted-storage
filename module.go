@@ -52,7 +52,7 @@ type Storage struct {
 	// The encryption provider: local, remote. Although this is an array, current support is for 1 provider.
 	// TODO: implemented the `remote` provider.
 	// TODO: multiple providers
-	Encryption        []json.RawMessage `json:"encryption,omitempty" caddy:"namespace=caddy.storage.encrypted inline_key=provider"`
+	Encryption        []json.RawMessage `json:"encryption,omitempty" caddy:"namespace=caddy.storage.encrypted.provider inline_key=provider"`
 	keyServiceClients []keyservice.KeyServiceClient
 	keyGroups         []sops.KeyGroup
 
