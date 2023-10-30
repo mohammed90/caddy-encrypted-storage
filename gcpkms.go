@@ -43,7 +43,7 @@ func (gcp *GCPKMS) Provision(ctx caddy.Context) error {
 // CaddyModule implements caddy.Module.
 func (GCPKMS) CaddyModule() caddy.ModuleInfo {
 	return caddy.ModuleInfo{
-		ID: "caddy.storage.encrypted.key.kms",
+		ID: "caddy.storage.encrypted.key.gcp_kms",
 		New: func() caddy.Module {
 			return new(GCPKMS)
 		},
