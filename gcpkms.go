@@ -17,7 +17,10 @@ func init() {
 // GCPKMS uses GCPKMS (Google Cloud Platform KMS) for the encryption/decryption.
 // See more: [https://github.com/getsops/sops#encrypting-using-gcp-kms](https://github.com/getsops/sops#encrypting-using-gcp-kms)
 type GCPKMS struct {
-	ResourceID  string          `json:"resource_id,omitempty"`
+	// The subject resource ID as obtained from the GCP console.
+	ResourceID string `json:"resource_id,omitempty"`
+
+	// The raw JSON credentials as obtained from GCP
 	Credentials json.RawMessage `json:"credentials,omitempty"`
 
 	mk keys.MasterKey
