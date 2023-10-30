@@ -13,6 +13,32 @@ xcaddy build --with github.com/mohammed90/caddy-encrypted-storage
 
 ## Example
 
+### Caddyfile
+
+Configuring the default storage module for Caddy in the Caddyfile is done using the `storage` global option.
+
+```caddyfile
+{
+	storage encrypted {
+		backend file_system {
+			root /var/caddy/storage
+		}
+		provider local {
+			key age {
+				recipient age1pjtsgtdh79nksq08ujpx8hrup0yrpn4sw3gxl4yyh0vuggjjp3ls7f42y2
+				identity AGE-SECRET-KEY-16E6P6H93CXNPZQRJVNA5NMK4X06ZHCDU4ED9U89E3PZMASSMC46SX99PEWAGE-SECRET-KEY-16E6P6H93CXNPZQRJVNA5NMK4X06ZHCDU4ED9U89E3PZMASSMC46SX99PEW
+				identity {$AGE_SECRET_KEY}
+			}
+		}
+	}
+}
+https://example.com {
+	respond "Howdy!"
+}
+```
+
+### JSON
+
 The simplest configuration of this module can be as follows:
 
 ```json
