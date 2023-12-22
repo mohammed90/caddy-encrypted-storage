@@ -52,8 +52,50 @@ Configuring the default storage module for Caddy in the Caddyfile is done using 
 		provider local {
 			key age {
 				recipient age1pjtsgtdh79nksq08ujpx8hrup0yrpn4sw3gxl4yyh0vuggjjp3ls7f42y2
-				identity AGE-SECRET-KEY-16E6P6H93CXNPZQRJVNA5NMK4X06ZHCDU4ED9U89E3PZMASSMC46SX99PEWAGE-SECRET-KEY-16E6P6H93CXNPZQRJVNA5NMK4X06ZHCDU4ED9U89E3PZMASSMC46SX99PEW
+				identity AGE-SECRET-KEY-16E6P6H93CXNPZQRJVNA5NMK4X06ZHCDU4ED9U89E3PZMASSMC46SX99PEWCDU4ED9U89E3PZMASSMC46SX99PEW
+			}
+		}
+	}
+}
+https://example.com {
+	respond "Howdy!"
+}
+```
+
+The configuration accepts multiple identities whose values can be determined via [environment variables](https://caddyserver.com/docs/caddyfile/concepts#environment-variables).
+
+```caddyfile
+{
+	storage encrypted {
+		backend file_system {
+			root /var/caddy/storage
+		}
+		provider local {
+			key age {
+				recipient age1pjtsgtdh79nksq08ujpx8hrup0yrpn4sw3gxl4yyh0vuggjjp3ls7f42y2
+				identity AGE-SECRET-KEY-16E6P6H93CXNPZQRJVNA5NMK4X06ZHCDU4ED9U89E3PZMASSMC46SX99PEWCDU4ED9U89E3PZMASSMC46SX99PEW
 				identity {$AGE_SECRET_KEY}
+			}
+		}
+	}
+}
+https://example.com {
+	respond "Howdy!"
+}
+```
+
+The configuration values can also be extracted via [placeholders](https://caddyserver.com/docs/conventions#placeholders).
+
+```caddyfile
+{
+	storage encrypted {
+		backend file_system {
+			root /var/caddy/storage
+		}
+		provider local {
+			key age {
+				recipient {env.AGE_RECIPIENT}
+				identity {env.AGE_SECRET}
 			}
 		}
 	}
