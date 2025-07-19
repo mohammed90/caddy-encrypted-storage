@@ -176,8 +176,7 @@ func (s *Storage) Store(ctx context.Context, key string, value []byte) error {
 
 	dataKey, errs := tree.GenerateDataKeyWithKeyServices(s.keyServiceClients)
 	if len(errs) > 0 {
-		err = fmt.Errorf("Could not generate data key: %s", errs)
-		return err
+		return fmt.Errorf("could not generate data key: %s", errs)
 	}
 	if err := common.EncryptTree(common.EncryptTreeOpts{
 		Tree:    &tree,

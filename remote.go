@@ -33,8 +33,8 @@ func (r *Remote) KeyServiceClient() keyservice.KeyServiceClient {
 }
 
 // KeyGroup implements KeyGroupGetter.
-func (s *Remote) KeyGroup() []sops.KeyGroup {
-	return s.keysGroups
+func (r *Remote) KeyGroup() []sops.KeyGroup {
+	return r.keysGroups
 }
 
 // CaddyModule implements caddy.Module.
@@ -48,12 +48,12 @@ func (Remote) CaddyModule() caddy.ModuleInfo {
 }
 
 // Provision implements caddy.Provisioner.
-func (s *Remote) Provision(ctx caddy.Context) error {
-	s.ctx = ctx
-	if len(s.Keys) == 0 {
+func (r *Remote) Provision(ctx caddy.Context) error {
+	r.ctx = ctx
+	if len(r.Keys) == 0 {
 		return errors.New("field 'keys' cannot be empty")
 	}
-	iKeys, err := ctx.LoadModule(s, "Keys")
+	iKeys, err := ctx.LoadModule(r, "Keys")
 	if err != nil {
 		return err
 	}
@@ -62,9 +62,13 @@ func (s *Remote) Provision(ctx caddy.Context) error {
 		if !ok {
 			return fmt.Errorf("expected key to be of type sops.Key, but got %T", iKey)
 		}
-		s.keysGroups = append(s.keysGroups, sops.KeyGroup{key.ToMasterkey()})
+		r.keysGroups = append(r.keysGroups, sops.KeyGroup{key.ToMasterkey()})
 	}
-
+	c, err := grpc.NewClient(r.Address)
+	if err != nil {
+		return fmt.Errorf("failed to connect to key service: %v", err)
+	}
+	r.conn = c
 	return nil
 }
 
@@ -73,20 +77,9 @@ func (r *Remote) Cleanup() error {
 	return r.conn.Close()
 }
 
-// Validate implements caddy.Validator.
-func (r *Remote) Validate() error {
-	c, err := grpc.DialContext(r.ctx, r.Address)
-	if err != nil {
-		return fmt.Errorf("failed to connect to key service: %v", err)
-	}
-	r.conn = c
-	return nil
-}
-
 var (
 	_ caddy.Module       = (*Remote)(nil)
 	_ caddy.Provisioner  = (*Remote)(nil)
-	_ caddy.Validator    = (*Remote)(nil)
 	_ caddy.CleanerUpper = (*Remote)(nil)
 	// _ keyservice.KeyServiceServer = (*Remote)(nil)
 	_ KeyGroupProvider         = (*Remote)(nil)
