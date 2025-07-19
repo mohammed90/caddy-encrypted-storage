@@ -101,7 +101,7 @@ func (s *Storage) Provision(ctx caddy.Context) error {
 		}
 	}
 
-	s.store = jsonstore.BinaryStore{}
+	s.store = &jsonstore.BinaryStore{}
 
 	return nil
 }

@@ -21,11 +21,11 @@ jobs:
           - macos-latest
           - windows-latest
         go: 
-          - '1.21'
+          - '1.24'
 
         include:
-        - go: '1.21'
-          GO_SEMVER: '~1.21.0'
+        - go: '1.24'
+          GO_SEMVER: '~1.24.0'
 
     runs-on: ${{ matrix.os }}
 
