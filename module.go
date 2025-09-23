@@ -125,7 +125,7 @@ func (s *Storage) List(ctx context.Context, path string, recursive bool) ([]stri
 func (s *Storage) Load(ctx context.Context, key string) ([]byte, error) {
 	bs, err := s.backend.Load(ctx, key)
 	if err != nil {
-		return bs, fmt.Errorf("backend load error: %s", err)
+		return bs, fmt.Errorf("backend load error: %w", err)
 	}
 
 	tree, err := s.store.LoadEncryptedFile(bs)
